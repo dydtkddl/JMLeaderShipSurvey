@@ -22,6 +22,7 @@ export default function Router() {
   const isLoggedInadmin = localStorage.getItem("admin") || false
   console.log(isLoggedIn)
   console.log(isLoggedInadmin)
+  console.log(window.location.pathname)
   let allowPath = []
   let FLAG = 0
   if (isLoggedInadmin){
