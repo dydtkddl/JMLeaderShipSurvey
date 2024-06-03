@@ -26,15 +26,19 @@ export default function Router() {
   let allowPath = []
   let FLAG = 0
   if (isLoggedInadmin){
-    allowPath +=[ "/adminpage"]
+    allowPath +=[ "/adminpage","/adminpage/",]
     FLAG ="admin"
   }
   else if (isLoggedIn){
-    allowPath +=["/"]
+    allowPath +=["/", ""]
     FLAG ="user"
   }
   else {
-    allowPath +=['/signin','/adminsignin','/adminpage','/signup']
+    allowPath +=[
+      '/signin','/signup','/adminsignin','/adminsignup',
+      '/signin/','/signup/','/adminsignin/','/adminsignup/',
+
+    ]
     FLAG ="unknown"
   }
 
