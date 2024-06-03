@@ -34,7 +34,8 @@ export default function SurveyForm({ surveyname }) {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const userResponse = await fetch("http://127.0.0.1:8000/get_user_info/", {
+        // const userResponse = await fetch("http://127.0.0.1:8000/get_user_info/", {
+        const userResponse = await fetch("https://jmleadership.pythonanywhere.com/get_user_info/", {
           method: "GET",
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -52,7 +53,8 @@ export default function SurveyForm({ surveyname }) {
 
     const fetchData = async () => {
       try {
-        const response = await fetch("http://127.0.0.1:8000/send_to_survey_form/", {
+        const response = await fetch("https://jmleadership.pythonanywhere.com/send_to_survey_form/", {
+        // const response = await fetch("http://127.0.0.1:8000/send_to_survey_form/", {
           method: "POST",
           headers: {
             'Authorization': `Bearer ${token}`,

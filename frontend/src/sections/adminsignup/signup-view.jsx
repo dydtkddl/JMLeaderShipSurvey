@@ -54,8 +54,8 @@ const onSubmit = async (e) => {
 
   try {
     console.log(updatedUserData)
-    const response = await fetch("http://127.0.0.1:8000/adminsignup_backend/", {
-    // const response = await fetch("https://leadershipsurvey.pythonanywhere.com/adminsignup_backend/", {
+    // const response = await fetch("http://127.0.0.1:8000/adminsignup_backend/", {
+    const response = await fetch("https://jmleadership.pythonanywhere.com/adminsignup_backend/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

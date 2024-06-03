@@ -12,7 +12,8 @@ export default function AdminPage() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const userResponse = await fetch("http://127.0.0.1:8000/get_user_info/", {
+        // const userResponse = await fetch("http://127.0.0.1:8000/get_user_info/", {
+        const userResponse = await fetch("https://jmleadership.pythonanywhere.com/get_user_info/", {
           method: "GET",
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -32,7 +33,8 @@ export default function AdminPage() {
 
   const handleDownload = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:8000/export_survey_responses/", {
+      // const response = await fetch("http://127.0.0.1:8000/export_survey_responses/", {
+      const response = await fetch("https://jmleadership.pythonanywhere.com/export_survey_responses/", {
         method: "GET",
         headers: {
           'Authorization': `Bearer ${token}`,
