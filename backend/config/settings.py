@@ -46,12 +46,15 @@ REST_FRAMEWORK = {
   ]
 }
 ALLOWED_HOSTS = [
-'www.leadershipsurvey.pythonanywhere.com',
-'leadershipsurvey.pythonanywhere.com',
+# 'www.leadershipsurvey.pythonanywhere.com',
+'www.JMLeadership.pythonanywhere.com',
+# 'leadershipsurvey.pythonanywhere.com',
+"JMLeadership.pythonanywhere.com",
 '127.0.0.1'
 ]
 INSTALLED_APPS = [
   "app",
+  "sslserver",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -80,7 +83,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "config.urls"
 import os
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "build", "static")]
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "build", "assets")]
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -146,7 +149,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = "assets/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
