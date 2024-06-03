@@ -20,6 +20,8 @@ export const AdminDataDownload = lazy(() => import('src/pages/admin-data-downloa
 export default function Router() {
   const isLoggedIn = localStorage.getItem("token") || false
   const isLoggedInadmin = localStorage.getItem("admin") || false
+  console.log(isLoggedIn)
+  console.log(isLoggedInadmin)
   let allowPath = []
   let FLAG = 0
   if (isLoggedInadmin){
