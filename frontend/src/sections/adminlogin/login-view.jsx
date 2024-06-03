@@ -57,8 +57,8 @@ export default function AdminLoginView() {
     if (data.message === "success") {
       console.log("로그인성공");
       const { token ,name} = data; // Object destructuring
-      localStorage.setItem('token', token);
-      localStorage.setItem('name', name);
+      // localStorage.setItem('token', token);
+      // localStorage.setItem('name', name);
       localStorage.setItem('admin', token);
       window.location.href = "/adminpage"
     } else{

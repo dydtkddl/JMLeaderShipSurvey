@@ -61,7 +61,7 @@ export default function AdminPage() {
 
   const handleLogout = () => {
     localStorage.removeItem("admin");
-    window.location.href = "/login";
+    window.location.href = "/signin";
   };
 
   return (
