@@ -264,7 +264,7 @@ export default function SignupView() {
           }}
         >
           <Stack direction="row" spacing={2} alignItems="center" position="relative">
-            <Link href="signin">
+            <Link href="/signin">
               <Iconify
                 position="absolute"
                 sx={{ top: 9 }}

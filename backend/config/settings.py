@@ -83,11 +83,11 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "config.urls"
 import os
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "dist3", "assets")]
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "dist4", "assets")]
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(BASE_DIR, "dist3")],
+        "DIRS": [os.path.join(BASE_DIR, "dist4")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [

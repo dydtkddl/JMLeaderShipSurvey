@@ -43,11 +43,11 @@ export default function Router() {
   }
 
   if (FLAG === "admin"){
-    if (!allowPath.includes(window.location.pathname) ){
+    if (!allowPath.includes(window.location.pathname  || window.location.pathname === "/") ){
       window.location.href = '/adminpage';
     }
   }else if (FLAG === "user"){
-    if (!allowPath.includes(window.location.pathname)){
+    if (!allowPath.includes(window.location.pathname )){
       window.location.href = '/';
     }
   }else if (FLAG === "unknown"){
