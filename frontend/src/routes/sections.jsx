@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { Outlet, Navigate, useRoutes } from 'react-router-dom';
 
 import DashboardLayout from 'src/layouts/dashboard';
@@ -18,43 +18,53 @@ export const AdminDataDownload = lazy(() => import('src/pages/admin-data-downloa
 // ----------------------------------------------------------------------
 
 export default function Router() {
-  const isLoggedIn = localStorage.getItem("token") || false
-  const isLoggedInadmin = localStorage.getItem("admin") || false
-  console.log(isLoggedIn)
-  console.log(isLoggedInadmin)
-  console.log(window.location.pathname)
-  let allowPath = []
-  let FLAG = 0
-  if (isLoggedInadmin){
-    allowPath +=[ "/adminpage","/adminpage/",]
-    FLAG ="admin"
-  }
-  else if (isLoggedIn){
-    allowPath +=["/", ""]
-    FLAG ="user"
-  }
-  else {
-    allowPath +=[
-      '/signin','/signup','/adminsignin','/adminsignup',
-      '/signin/','/signup/','/adminsignin/','/adminsignup/',
+  useEffect(()=>{
 
-    ]
-    FLAG ="unknown"
-  }
+    const isLoggedIn = localStorage.getItem("token") || false
+    const isLoggedInadmin = localStorage.getItem("admin") || false
+    console.log(isLoggedIn)
+    console.log(isLoggedInadmin)
+    console.log(window.location.pathname)
+    let allowPath = []
+    let FLAG = 0
+    if (isLoggedInadmin){
+      allowPath +=[ "/adminpage","/adminpage/"]
+      FLAG ="admin"
+    }
+    else if (isLoggedIn){
+      allowPath +=["/", ""]
+      FLAG ="user"
+    }
+    else {
+      allowPath +=[
+        '/signin','/signup','/adminsignin','/adminsignup',
+        '/signin/','/signup/','/adminsignin/','/adminsignup/'
+  
+      ]
+      FLAG ="unknown"
+    }
+  
+    if (FLAG === "admin"){
+      console.log(1)
+      console.log( window.location.pathname === "/")
 
-  if (FLAG === "admin"){
-    if (!allowPath.includes(window.location.pathname  || window.location.pathname === "/") ){
-      window.location.href = '/adminpage';
+      if (!allowPath.includes(window.location.pathname ) || window.location.pathname === "/") {
+        console.log(1)
+        window.location.href = '/adminpage';
+      }
+    }else if (FLAG === "user"){
+      console.log(2)
+      if (!allowPath.includes(window.location.pathname )){
+        window.location.href = '/';
+      }
+    }else if (FLAG === "unknown"){
+      console.log(3)
+      if (!allowPath.includes(window.location.pathname) || window.location.pathname === "/"){
+        window.location.href = '/signin';
+      }
     }
-  }else if (FLAG === "user"){
-    if (!allowPath.includes(window.location.pathname )){
-      window.location.href = '/';
-    }
-  }else if (FLAG === "unknown"){
-    if (!allowPath.includes(window.location.pathname) || window.location.pathname === "/"){
-      window.location.href = '/signin';
-    }
-  }
+  }, [])
+  
   const routes = useRoutes([
     {
       element: (
