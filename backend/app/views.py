@@ -612,7 +612,8 @@ def export_survey_responses(request):
             user.name,           # Username
             user.userid,         # User ID
             user.gender,         # User Gender
-            user.birthdate       # User Birthdate
+            user.birthdate,       # User Birthdate
+            user.email      # User email
         ]
         for question_code in question_codes:
             question = Question.objects.get(survey=survey, question_code=question_code)
@@ -625,7 +626,7 @@ def export_survey_responses(request):
         data.append(user_data)
 
     # Create a DataFrame
-    columns = ['Index', 'Username', 'User ID', 'Gender', 'BirthYear'] + question_codes
+    columns = ['Index', 'Username', 'User ID', 'Gender',   'BirthYear', "email"] + question_codes
     df = pd.DataFrame(data, columns=columns)
     # Create a BytesIO object to save the Excel file
     output = BytesIO()
