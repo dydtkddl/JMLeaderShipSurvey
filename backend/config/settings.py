@@ -12,10 +12,10 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 ### SSH 배포용
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
-SECURE_SSL_REDIRECT = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
+# SECURE_SSL_REDIRECT = True
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -54,7 +54,7 @@ ALLOWED_HOSTS = [
 ]
 INSTALLED_APPS = [
   "app",
-  "sslserver",
+#   "sslserver",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -83,11 +83,11 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "config.urls"
 import os
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "dist2", "assets")]
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "dist", "assets")]
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(BASE_DIR, "dist2")],
+        "DIRS": [os.path.join(BASE_DIR, "dist")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [

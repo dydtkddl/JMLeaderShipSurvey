@@ -33,6 +33,7 @@ class User(models.Model):
     userid = models.CharField(max_length=200)
     name = models.CharField(max_length=200)
     gender = models.CharField(max_length=200, default = "M")
+    email = models.CharField(max_length=200, default = "None")
     birthdate = models.CharField(max_length=200)
     password   = models.CharField(max_length=200)
     created_at = models.DateTimeField(auto_now_add=True)

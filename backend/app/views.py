@@ -44,7 +44,8 @@ class SignUp(APIView):
             password = bcrypt.hashpw(data["password"].encode("UTF-8"), bcrypt.gensalt()).decode("UTF-8"),
             name=data["name"],
                 birthdate=data["birthdate"],
-                gender = data["gender"]
+                gender = data["gender"],
+                email = data["email"]
             ).save()
             return JsonResponse({"message" : "success"}, status=200)
         except KeyError:
@@ -78,6 +79,7 @@ class SignIn(APIView):
                     return JsonResponse({"message" : "success" , "token" : token, "name" : user.name}, status=200)
                                                                                                                                     ## 이제 토큰을 프론트에서 local storage에 저장하는 코드 작성하면됌
                 ## 아이디는 맞는데 비밀번호가 틀린경우
+                print(1)
                 return JsonResponse({"message" : "ID or password is incorrect"})
             ## 아이디도 틀린경우
             return JsonResponse({"message" : "ID or password is incorrect"})
@@ -623,7 +625,7 @@ def export_survey_responses(request):
         data.append(user_data)
 
     # Create a DataFrame
-    columns = ['Index', 'Username', 'User ID', 'Gender', 'Birthdate'] + question_codes
+    columns = ['Index', 'Username', 'User ID', 'Gender', 'BirthYear'] + question_codes
     df = pd.DataFrame(data, columns=columns)
     # Create a BytesIO object to save the Excel file
     output = BytesIO()

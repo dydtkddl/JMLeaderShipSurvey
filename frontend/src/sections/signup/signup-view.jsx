@@ -3,7 +3,6 @@ import { useState } from 'react';
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Card from '@mui/material/Card';
-import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import { alpha, useTheme } from '@mui/material/styles';
 // import Button from '@mui/material/Button';
@@ -24,6 +23,7 @@ import Iconify from 'src/components/iconify';
 const yyReg = /^(19[0-9][0-9]|20\d{2})$/;
 const dReg = /^([1-9]|0[1-9]|1[0-9]|2[0-9]|3[0-1])$/;
 const mReg = /^(1[0-2]|[1-9]|0[1-9])$/; // 월 검사용 정규식
+const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // 이메일 검사용 정규식
 
 // ----------------------------------------------------------------------
 
@@ -32,9 +32,10 @@ export default function SignupView() {
 
   const [signupData, setSignupData] = useState({
     name: '',
+    email: '',
     birthdate_YY: '',
-    birthdate_MM: '',
-    birthdate_DD: '',
+    // birthdate_MM: '',
+    // birthdate_DD: '',
     userid: '',
     password: '',
     passwordConfirm: '',
@@ -43,16 +44,27 @@ export default function SignupView() {
     isyearOk: true,
     ismonthOk: true,
     isdayOk: true,
+    isEmailOk: true,
     submitokay: false,
     passwordMatchError: '',
     birYearError: '',
     birMonthError: '',
-    birDayError: ''
+    birDayError: '',
+    emailError: ''
   });
 
   const changeValue = (e) => {
     const { name, value } = e.target;
     const updatedSignupData = { ...signupData, [name]: value };
+
+    if (name === 'email' && !emailReg.test(value)) {
+      updatedSignupData.isEmailOk = false;
+      updatedSignupData.emailError = "Please enter a valid email address. ex) xxx@google.com";
+    } else if (name === 'email') {
+      updatedSignupData.isEmailOk = true;
+      updatedSignupData.emailError = "";
+      updatedSignupData.submitokay = true;
+    }
 
     if (name === 'passwordConfirm') {
       updatedSignupData.submitokay = true;
@@ -62,30 +74,30 @@ export default function SignupView() {
     if (name.slice(0, -3) === "birthdate") {
       if (name === 'birthdate_YY' && !yyReg.test(value)) {
         updatedSignupData.isyearOk = false;
-        updatedSignupData.birYearError = "태어난 년도 4자리를 정확하게 입력하세요.";
+        updatedSignupData.birYearError = "Please enter the 4-digit year of birth correctly. ex) 2000";
       } else {
         updatedSignupData.isyearOk = true;
         updatedSignupData.birYearError = "";
         updatedSignupData.submitokay = true;
       }
 
-      if (name === 'birthdate_MM' && !mReg.test(value)) {
-        updatedSignupData.ismonthOk = false;
-        updatedSignupData.birMonthError = "태어난 월을 정확하게 입력해주세요";
-      } else {
-        updatedSignupData.ismonthOk = true;
-        updatedSignupData.birMonthError = "";
-        updatedSignupData.submitokay = true;
-      }
+      // if (name === 'birthdate_MM' && !mReg.test(value)) {
+      //   updatedSignupData.ismonthOk = false;
+      //   updatedSignupData.birMonthError = "태어난 월을 정확하게 입력해주세요";
+      // } else {
+      //   updatedSignupData.ismonthOk = true;
+      //   updatedSignupData.birMonthError = "";
+      //   updatedSignupData.submitokay = true;
+      // }
 
-      if (name === 'birthdate_DD' && !dReg.test(value)) {
-        updatedSignupData.isdayOk = false;
-        updatedSignupData.birDayError = "태어난 일을 정확하게 입력해주세요";
-      } else {
-        updatedSignupData.birDayError = "";
-        updatedSignupData.isdayOk = true;
-        updatedSignupData.submitokay = true;
-      }
+      // if (name === 'birthdate_DD' && !dReg.test(value)) {
+      //   updatedSignupData.isdayOk = false;
+      //   updatedSignupData.birDayError = "태어난 일을 정확하게 입력해주세요";
+      // } else {
+      //   updatedSignupData.birDayError = "";
+      //   updatedSignupData.isdayOk = true;
+      //   updatedSignupData.submitokay = true;
+      // }
     }
     setSignupData(updatedSignupData);
   };
@@ -99,7 +111,8 @@ export default function SignupView() {
     e.preventDefault();
 
     // Check if any required field is empty
-    const requiredFields = ['name', 'birthdate_YY', 'birthdate_MM', 'birthdate_DD', 'userid', 'password', 'passwordConfirm', 'gender'];
+    // const requiredFields = ['name', 'email', 'birthdate_YY', 'birthdate_MM', 'birthdate_DD', 'userid', 'password', 'passwordConfirm', 'gender'];
+    const requiredFields = ['name', 'email', 'birthdate_YY','userid', 'password', 'passwordConfirm', 'gender'];
     const isAnyFieldEmpty = requiredFields.some(field => !signupData[field]);
 
     if (isAnyFieldEmpty) {
@@ -108,8 +121,10 @@ export default function SignupView() {
     }
 
     // Form data is complete, proceed with submission
-    const { birthdate_YY, birthdate_MM, birthdate_DD, ...rest } = signupData;
-    const birthdate = `${birthdate_YY}/${birthdate_MM}/${birthdate_DD}`;
+    // const { birthdate_YY, birthdate_MM, birthdate_DD, ...rest } = signupData;
+    const { birthdate_YY, ...rest } = signupData;
+    // const birthdate = `${birthdate_YY}/${birthdate_MM}/${birthdate_DD}`;
+    const birthdate = `${birthdate_YY}`;
     const updatedUserData = { ...rest, birthdate };
 
     try {
@@ -150,58 +165,16 @@ export default function SignupView() {
           autoFocus
           onChange={changeValue}
         />
-        <Grid container>
-          <Grid item xs={4} paddingRight="4px">
-            <TextField
-              label="Birth Year"
-              name="birthdate_YY"
-              margin="dense"
-              required
-              fullWidth
-              value={signupData.birthdate_YY}
-              onChange={changeValue}
-              error={signupData.isyearOk === false}
-              helperText={signupData.birYearError}
-            />
-          </Grid>
-          <Grid item xs={4}>
-            <TextField
-              label="Birth Month"
-              name="birthdate_MM"
-              margin="dense"
-              required
-              fullWidth
-              value={signupData.birthdate_MM}
-              onChange={changeValue}
-              error={signupData.ismonthOk === false}
-              helperText={signupData.birMonthError}
-            />
-          </Grid>
-          <Grid item xs={4} paddingLeft="4px">
-            <TextField
-              label="Birth Date"
-              name="birthdate_DD"
-              margin="dense"
-              required
-              fullWidth
-              value={signupData.birthdate_DD}
-              onChange={changeValue}
-              error={signupData.isdayOk === false}
-              helperText={signupData.birDayError}
-            />
-          </Grid>
-        </Grid>
-        <FormLabel component="legend">Gender</FormLabel>
-        <RadioGroup
-          row
-          aria-label="gender"
-          name="gender"
-          value={signupData.gender}
-          onChange={onGenderChange}
-        >
-          <FormControlLabel value="male" control={<Radio />} label="Male" />
-          <FormControlLabel value="female" control={<Radio />} label="Female" />
-        </RadioGroup>
+        <TextField
+          label="Email"
+          name="email"
+          margin="dense"
+          required
+          fullWidth
+          onChange={changeValue}
+          error={signupData.isEmailOk === false}
+          helperText={signupData.emailError}
+        />
         <TextField label="ID" name="userid" margin="dense" required fullWidth onChange={changeValue} />
         <TextField
           label="Password"
@@ -222,6 +195,28 @@ export default function SignupView() {
           onChange={changeValue}
           error={signupData.ispasswordMatch === false}
           helperText={signupData.errormessage}
+        />
+        <FormLabel component="legend">Gender</FormLabel>
+        <RadioGroup
+          row
+          aria-label="gender"
+          name="gender"
+          value={signupData.gender}
+          onChange={onGenderChange}
+        >
+          <FormControlLabel value="male" control={<Radio />} label="Male" />
+          <FormControlLabel value="female" control={<Radio />} label="Female" />
+        </RadioGroup>
+        <TextField
+          label="Birth Year"
+          name="birthdate_YY"
+          margin="dense"
+          required
+          fullWidth
+          value={signupData.birthdate_YY}
+          onChange={changeValue}
+          error={signupData.isyearOk === false}
+          helperText={signupData.birYearError}
         />
       </Stack>
       <LoadingButton
