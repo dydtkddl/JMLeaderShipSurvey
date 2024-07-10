@@ -60,7 +60,8 @@ const SurveyReport = () => {
             "Content-Type": "application/json"
           }
           response = await axios.post(url, data, {headers});
-        }else {
+        }
+        else {
           const url = 'https://jmleadership.pythonanywhere.com/api/post/get_user_answer_temp';
           const data = {
             surveyname_: 'JMLeadershipEvaluationSurvey',
@@ -74,7 +75,8 @@ const SurveyReport = () => {
 
         }
         setresponseUserAnswer(response.data);
-      } catch (err) {
+      } 
+      catch (err) {
         setError(err);
       }
     };
@@ -149,11 +151,15 @@ const SurveyReport = () => {
     };
     fetchUserInfo();
   }, [token,temporalToken]); 
-
+  console.log(temporalToken)
   if (error && temporalToken == null) {
     return <div>에러 발생: {error.message}</div>;
   }
-   if(error && temporalToken != null){
+   if(error && temporalToken === "Not Yet"){
+    
+    return <div>Not yet participated in the survey.</div>;
+  }
+   if(error && temporalToken != null ){
     
     return <div>에러 발생: invalid link</div>;
   }

@@ -82,20 +82,21 @@ const AdminDashboard = () => {
           <Typography variant="h6" style={{ flexGrow: 1 }}>
             Hi Admin!
           </Typography>
-            {users.map((user) => (
-              <div key={user.id} className="user-item">
+            {users.map((user) =>
+             ( <div key={user.id} className="user-item">
                 <h3>{user.name}</h3>
                 <p>{user.email}</p>
-                  <Button  onClick={() => handleUserClick(user.access_token)}>
-                    View Survey 
-                  </Button>
-              </div>
-            ))}
+                  
+                    { user.access_token === "Not Yet" ? <Button  onClick={() => handleUserClick(user.access_token)}>Not Yet</Button> : 
+                    <Button  onClick={() => handleUserClick(user.access_token)}>View Survey</Button>}
+              </div>)
+           )}
           </div>
           <div className="content">
             {selectedToken ? (
               <iframe
                 src={`https://jmleadership.pythonanywhere.com/view_report/?token=${selectedToken}`}
+                // src={`http://localhost:3030/view_report/?token=${selectedToken}`}
                 title="Survey Result"
                 width="100%"
                 height="100%"

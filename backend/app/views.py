@@ -43,14 +43,14 @@ import pytz
 def convert_utc_to_local(utc_time_str, timezone_str):
     # UTC 시간 문자열을 datetime 객체로 변환
     utc_time = utc_time_str.replace(tzinfo=pytz.UTC)
-    
+
     # 요청한 국가의 시간대로 변환
     local_timezone = pytz.timezone(timezone_str)
     local_time = utc_time.astimezone(local_timezone)
-    
+
     # 년, 월, 일로만 표기
     local_date_str = local_time.strftime("%Y-%m-%d")
-    
+
     return local_date_str
 class SignUp(APIView):
     def post(self, request):
@@ -114,7 +114,7 @@ class AdminSignIn(APIView):
                 token = jwt.encode({'admin' : adminob.adminid}, SECRET_KEY, algorithm='HS256')
                         ## 로그인 성공시
                 return JsonResponse({"message" : "success" , "token" : token, "name" : adminob.adminid}, status=200)
-            else: 
+            else:
                 return JsonResponse({"message" : "fail"}, status=400)
         except:
                 return JsonResponse({"message" : "fail"}, status=400)
@@ -148,7 +148,7 @@ class TokenAuthentication(BaseAuthentication):
                 admin = Admin.objects.get(adminid = user_id)
             else:
                 user = User.objects.get(userid=user_id)
-            
+
         except User.DoesNotExist:
             raise AuthenticationFailed('No such user')
         if ("admin" in payload.keys()):
@@ -165,7 +165,7 @@ class RecieveData(APIView):
             userob = User.objects.get(userid = user.userid)
         except:
             return JsonResponse({"error": "User not Founded"}, status=400)
-        
+
         # 2. 해당 서베이가 데이터베이스에 존재하는지부터 확인 (POST 요청을 막보내는 경우 차단)
         survey_name = data.get("survey_name")
         if Survey.objects.filter(survey_name = survey_name).exists():
@@ -181,7 +181,7 @@ class RecieveData(APIView):
                     if len(q) == 1:
 
                         q= q.first()
-                        # 해당 사용자가 해당 질문에 대해서 답한 이력이 있는지 확인 
+                        # 해당 사용자가 해당 질문에 대해서 답한 이력이 있는지 확인
                         ## 이력이 있으면, flag를 1로 바꾸가
                         if (not res.objects.filter(question = q, user = userob).exists()):
                             responses_to_save.append(res( question=q, value=value,user=userob))
@@ -249,9 +249,9 @@ class send_result(APIView):
                     resall = res.objects.filter(question=question).aggregate(Avg('value'))["value__avg"]
                     resdic[question.question_code] = resval.value
                     resalldic[question.question_code] = resall
-                    
+
                 data["username"] = userob.name
-                data["userdata"] = resdic 
+                data["userdata"] = resdic
                 data["otherdata"] = resalldic
                 data["questiondetail"] = questiondetaillist
 
@@ -300,17 +300,17 @@ class send_result(APIView):
 import random
 class send_to_survey_form(APIView):
     authentication_classes = [TokenAuthentication]
-    
+
     def post(self, request):
         user = request.user
         userob = User.objects.get(userid=user.userid)
         data = json.loads(request.body)
         request_surveyname = data["surveyname_"]
         request_language = data["language"]
-        survey = Survey.objects.filter(survey_name=request_surveyname)        
+        survey = Survey.objects.filter(survey_name=request_surveyname)
         data = {"meta": {}, "data": {}}
         question_fields = Question._meta.fields
-        
+
         if len(survey) == 1:
             survey = survey.first()
             questions = list(Question.objects.filter(survey=survey))
@@ -349,7 +349,7 @@ class send_to_survey_form(APIView):
             return JsonResponse(data=data, safe=False, status=200)
         else:
             return JsonResponse({"error": "에러"}, status=404)
-        
+
 
 class get_user_info(APIView):
     authentication_classes = [TokenAuthentication]
@@ -362,12 +362,12 @@ class get_user_info(APIView):
             body = json.loads(request.body)
         except json.JSONDecodeError:
             return JsonResponse({"error": "Invalid JSON in request body"}, status=400)
-        
+
         data = {
             "username": userob.name,
             "useremail": userob.email,
         }
-        
+
         if body.get("surveyname_") == "JMLeadershipEvaluationSurvey":
             timezone_str = request.headers.get('X-Timezone', 'UTC')
             surveyob = Survey.objects.get(survey_name=body["surveyname_"])
@@ -376,7 +376,7 @@ class get_user_info(APIView):
             local_date = convert_utc_to_local(user_time_str, timezone_str)
             data["survey_date"] = local_date
             data["survey_name"] = "JM Leadership Survey"
-        
+
         return JsonResponse(data=data, safe=False, status=200)
 class get_user_info_temp(APIView):
     def post(self, request):
@@ -396,7 +396,7 @@ class get_user_info_temp(APIView):
             local_date = convert_utc_to_local(user_time_str, timezone_str)
             data["survey_date"] = local_date
             data["survey_name"] = "JM Leadership Survey"
-        
+
         return JsonResponse(data=data, safe=False, status=200)
 def map_response_to_score(response):
     response_to_score = {
@@ -429,7 +429,7 @@ class get_average_data_temp(APIView):
                         group_values.append(res_value)
                     except res.DoesNotExist:
                         continue  # 특정 question에 해당하는 Res 객체가 없을 경우 생략
-                    
+
                 if group_values:
                     if key not in data.keys():
                         data[key] = [sum(group_values) / len(group_values)]
@@ -443,7 +443,7 @@ class get_average_data_temp(APIView):
         return JsonResponse(data=data, safe=False, status=200)
 class get_average_data(APIView):
     authentication_classes = [TokenAuthentication]
-    
+
     def post(self, request):
         user = request.user
         userob = User.objects.get(userid=user.userid)
@@ -467,7 +467,7 @@ class get_average_data(APIView):
                         group_values.append(res_value)
                     except res.DoesNotExist:
                         continue  # 특정 question에 해당하는 Res 객체가 없을 경우 생략
-                    
+
                 if group_values:
                     if key not in data.keys():
                         data[key] = [sum(group_values) / len(group_values)]
@@ -482,13 +482,13 @@ class get_average_data(APIView):
         return JsonResponse(data=data, safe=False, status=200)
 class check_survey_completion(APIView):
     authentication_classes = [TokenAuthentication]
-    
+
     def post(self, request):
         user = request.user
         userob = User.objects.get(userid=user.userid)
         body = json.loads(request.body)
         survey_name = body["surveyname_"]
-        
+
         try:
             survey = Survey.objects.get(survey_name=survey_name)
             completed_survey = CompletedSurvey.objects.filter(user=userob, survey=survey).exists()
@@ -496,7 +496,7 @@ class check_survey_completion(APIView):
         except Survey.DoesNotExist:
             data = {'error': 'Survey does not exist'}
             return JsonResponse(data=data, safe=False, status=400)
-        
+
         return JsonResponse(data=data, safe=False, status=200)
 import pickle
 
@@ -550,7 +550,7 @@ class get_user_answer(APIView):
         for q in questions:
             answer = res.objects.get(question = q, user = userob)
             value = answer.value
-            answer_dict[q.question_code] = value 
+            answer_dict[q.question_code] = value
         return JsonResponse(answer_dict, status = 200)
         # except:
         #     return JsonResponse({"error" : "에러"}, status =404)
@@ -560,13 +560,17 @@ class AdminUserListView(APIView):
         user_list = []
         surveyob = Survey.objects.get(survey_name = json.loads(request.body)["surveyname"])
         for user in users:
-
-            surveys = CompletedSurvey.objects.get(user=user,survey = surveyob)
+            print(user.name, surveyob.survey_name, user.password.encode('UTF-8'))
+            try:
+                surveys = CompletedSurvey.objects.get(user=user,survey = surveyob)
+                access_token_ = surveys.access_token
+            except:
+                access_token_ = "Not Yet"
             user_list.append({
                 'id': user.id,
                 'name': user.name,
                 'email': user.email,
-                'access_token': surveys.access_token
+                'access_token': access_token_
             })
             print(user_list)
         return JsonResponse(user_list, safe=False)
@@ -583,7 +587,7 @@ class get_user_answer_temp(APIView):
         for q in questions:
             answer = res.objects.get(question = q, user = userob)
             value = answer.value
-            answer_dict[q.question_code] = value 
+            answer_dict[q.question_code] = value
         return JsonResponse(answer_dict, status = 200)
         # except:
         #     return JsonResponse({"error" : "에러"}, status =404)
@@ -613,7 +617,7 @@ class result_data_render_admin(APIView):
         survey_name = data["surveyname_"]
         if (survey_name == "UN17Goal"):
             dic , dd = group_calc_admin(request_group_info, survey_name)
-            senddata["data"] = dic 
+            senddata["data"] = dic
             senddata["subtitles"] = dd
         else:
             senddata["data"] = group_calc_admin(request_group_info, survey_name)
@@ -652,7 +656,7 @@ def group_calc(request_group_info, userob,survey_name,target = "user"):
                     response_value = res.objects.filter(question = question ).aggregate(Avg('value'))['value__avg']
                 sum_+=response_value
             mean_ = sum_/len(q_codes)
-            dic[group_name] = mean_ 
+            dic[group_name] = mean_
     return dic
 def group_calc_admin(request_group_info,survey_name):
     dd= {}
@@ -660,7 +664,7 @@ def group_calc_admin(request_group_info,survey_name):
     completes = CompletedSurvey.objects.filter(survey = survey)
     user_list = []
     for complete in completes:
-        userob = complete.user 
+        userob = complete.user
         user_list.append(userob)
     dic = {}
     for group_name, q_codes in request_group_info.items():
@@ -675,17 +679,17 @@ def group_calc_admin(request_group_info,survey_name):
             user_mean_list.append(mean_)
         dic[group_name] = user_mean_list
         if(survey_name == "UN17Goal"):
-            
+
             dd[group_name]= {"subtitle" : json.loads(question.question_basic.replace('\r', '').replace('\n', '').strip())}
     if(survey_name == "UN17Goal"):
         return dic ,dd
     else:
         return dic
-    
+
 
 def result_process_JMLeadershipEvaluationSurvey(resdic):
-    personal_list = ["experiences", 
-                     "attribute_of_learning" , 
+    personal_list = ["experiences",
+                     "attribute_of_learning" ,
                      "accessibility",
                      "resiliency",
                      "belief_in_telent",
@@ -724,7 +728,7 @@ def result_process_JMLeadershipEvaluationSurvey(resdic):
             section_key = "Ability to grasp, judge, and solve problems "
         elif (q_type in leadership_list):
             section_key = "Leadership Abilities"
-        
+
         if section_key not in Ldic:
             Ldic[section_key] = {}
 
@@ -740,7 +744,7 @@ def result_process_JMLeadershipEvaluationSurvey(resdic):
         for k, v in Ldic[key].items():
             leadership_mean[key][k]= v["sum"]/v["count"]
     return  leadership_mean
-    
+
 def result_process_InclusiveLeadershipSurvey(resdic):
     lis = ["openness", "availability" , "accessibility"]
     Ldic = {}
@@ -756,7 +760,7 @@ def result_process_InclusiveLeadershipSurvey(resdic):
     for key, value in Ldic.items():
         leadership_mean[key] = value["sum"]/value["count"]
     return {"mean_by_sector" :  leadership_mean}
-    
+
 
 
 def result_process_LeadershipSurvey(resdic):
@@ -864,7 +868,7 @@ def export_survey_responses(request):
 # def send_email(request):
 #     subject = "JMLeadership Survey Completion: Survey Results Notification"							# 타이틀
 #     to = ["dydtkddhkdwk@gmail.com"]					# 수신할 이메일 주소
-#     from_email = settings.DEFAULT_FROM_EMAIL	
+#     from_email = settings.DEFAULT_FROM_EMAIL
 #     message = "메세지 테스트"					# 본문 내용
 #     mail = EmailMessage(subject=subject, body=message, to=to, from_email=from_email)
 #     mail.send()
