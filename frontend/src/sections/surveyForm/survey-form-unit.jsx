@@ -30,6 +30,7 @@ export default function AppTrafficBySite({
   requestLanguage,
   subtitle,
   surveyname,
+  useremail, 
   ...other
 }) {
   const [error, setError] = useState(null);
@@ -221,4 +222,5 @@ AppTrafficBySite.propTypes = {
   setUserAnswer: PropTypes.func.isRequired,
   requestLanguage: PropTypes.string,
   surveyname: PropTypes.string,
+  useremail: PropTypes.string,
 };

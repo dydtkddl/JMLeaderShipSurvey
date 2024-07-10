@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 ### SSH 배포용
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
-SECURE_SSL_REDIRECT = True
+SECURE_SSL_REDIRECT = False
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
@@ -64,9 +64,9 @@ INSTALLED_APPS = [
     'rest_framework',
 ]
 CORS_ORIGIN_WHITELIST = [ #추가
-  'https://localhost:3000','https://localhost:3030'
+  'http://localhost:3000','https://localhost:3030'
 ]
-CSRF_TRUSTED_ORIGINS = ['https://localhost:3000' ]
+CSRF_TRUSTED_ORIGINS = ['http://localhost:3000' ]
 CORS_ORIGIN_ALLOW_ALL = True #추가
 
 MIDDLEWARE = [
@@ -78,16 +78,16 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
 import os
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "dist", "assets")]
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "dist_recent", "assets")]
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(BASE_DIR, "dist")],
+        "DIRS": [os.path.join(BASE_DIR, "dist_recent")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -170,3 +170,11 @@ def get_secret(setting, secrets=secrets):
         raise ImproperlyConfigured(error_msg)
 
 SECRET_KEY = get_secret("SECRET_KEY")
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.naver.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'dydtkddhkdwk@naver.com'
+EMAIL_HOST_PASSWORD = '2019101074a!@'
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

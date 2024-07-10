@@ -25,7 +25,10 @@ import jwt
 from config.settings import SECRET_KEY
 from django.db.models import Count
 import pytz
+import uuid
 import pandas as pd
+from django.conf import settings
+from django.core.mail import EmailMessage
 ## 1. 회원가입
 ## 2. 로그인
 ## 3. 로그아웃
@@ -33,6 +36,22 @@ import pandas as pd
 ## 5. 결과 폼 계산 후 전달
 
 ## 1. 회원가입
+
+from datetime import datetime
+import pytz
+
+def convert_utc_to_local(utc_time_str, timezone_str):
+    # UTC 시간 문자열을 datetime 객체로 변환
+    utc_time = utc_time_str.replace(tzinfo=pytz.UTC)
+    
+    # 요청한 국가의 시간대로 변환
+    local_timezone = pytz.timezone(timezone_str)
+    local_time = utc_time.astimezone(local_timezone)
+    
+    # 년, 월, 일로만 표기
+    local_date_str = local_time.strftime("%Y-%m-%d")
+    
+    return local_date_str
 class SignUp(APIView):
     def post(self, request):
         data = json.loads(request.body)
@@ -51,10 +70,8 @@ class SignUp(APIView):
         except KeyError:
             return JsonResponse({"message" : "INVALID_KEYS"}, status=400)
 class AdminSignUp(APIView):
-    print(1)
     def post(self, request):
         data = json.loads(request.body)
-        print(data)
         try:
             if Admin.objects.filter(adminid = data['userid']).exists():
                 return JsonResponse({"message" : "EXISTS_ID"}, status=201)
@@ -79,7 +96,6 @@ class SignIn(APIView):
                     return JsonResponse({"message" : "success" , "token" : token, "name" : user.name}, status=200)
                                                                                                                                     ## 이제 토큰을 프론트에서 local storage에 저장하는 코드 작성하면됌
                 ## 아이디는 맞는데 비밀번호가 틀린경우
-                print(1)
                 return JsonResponse({"message" : "ID or password is incorrect"})
             ## 아이디도 틀린경우
             return JsonResponse({"message" : "ID or password is incorrect"})
@@ -93,8 +109,6 @@ class AdminSignIn(APIView):
         password = data['password']
         try:
             adminob = Admin.objects.get(adminid = adminid)
-            print(bcrypt.checkpw(password.encode('UTF-8'), adminob.password.encode('UTF-8')))
-            print(password.encode('UTF-8'),adminob.password,adminob.password.encode('UTF-8') )
             # user = User.objects.get(userid=data["userid"])
             if bcrypt.checkpw(password.encode('UTF-8'), adminob.password.encode('UTF-8')):
                 token = jwt.encode({'admin' : adminob.adminid}, SECRET_KEY, algorithm='HS256')
@@ -105,22 +119,20 @@ class AdminSignIn(APIView):
         except:
                 return JsonResponse({"message" : "fail"}, status=400)
 
-                
-
 ## 3. 설문조사 데이터 수신
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 
 class TokenAuthentication(BaseAuthentication):
     def authenticate(self, request):
+        print("aa")
         token = request.headers.get('Authorization')
-        print(1)
+        print("bb")
         if not token:
             return None
         try:
             # 토큰에서 사용자 정보 추출
             payload = jwt.decode(token.split()[1], SECRET_KEY, algorithms=['HS256'])
-            print(payload)
             if ("admin" in payload.keys()):
                 user_id = payload["admin"]
             else:
@@ -128,6 +140,7 @@ class TokenAuthentication(BaseAuthentication):
         except jwt.ExpiredSignatureError:
             raise AuthenticationFailed('Token expired')
         except jwt.InvalidTokenError:
+
             raise AuthenticationFailed('Invalid token')
         # 사용자 확인
         try:
@@ -135,10 +148,12 @@ class TokenAuthentication(BaseAuthentication):
                 admin = Admin.objects.get(adminid = user_id)
             else:
                 user = User.objects.get(userid=user_id)
+            
         except User.DoesNotExist:
             raise AuthenticationFailed('No such user')
         if ("admin" in payload.keys()):
             return (admin, None)
+        print((user, None))
         return (user, None)
 class RecieveData(APIView):
     authentication_classes = [TokenAuthentication]
@@ -299,10 +314,8 @@ class send_to_survey_form(APIView):
         if len(survey) == 1:
             survey = survey.first()
             questions = list(Question.objects.filter(survey=survey))
-            
             # Shuffle the questions
             random.shuffle(questions)
-            
             survey_title = json.loads(survey.survey_title.replace('\r', '').replace('\n', '').strip())
             survey_subtitle = json.loads(survey.survey_subtitle.replace('\r', '').replace('\n', '').strip())
             survey_index_description = json.loads(survey.survey_index_description.replace('\r', '').replace('\n', '').strip())
@@ -317,7 +330,6 @@ class send_to_survey_form(APIView):
                 "participated_count": CompletedSurvey.objects.filter(survey=survey).count(),
                 "question_counts": Question.objects.filter(survey=survey).count()
             }
-
             for question in questions:
                 questiondict = model_to_dict(question)
                 sd = {}
@@ -334,10 +346,160 @@ class send_to_survey_form(APIView):
                         field_value = field_value
                     sd[field_name] = field_value
                 data["data"][question.question_code] = sd
-
             return JsonResponse(data=data, safe=False, status=200)
         else:
             return JsonResponse({"error": "에러"}, status=404)
+        
+
+class get_user_info(APIView):
+    authentication_classes = [TokenAuthentication]
+    def post(self, request):
+        print(2132132131)
+        user = request.user
+        userob = User.objects.get(userid=user.userid)
+        print(userob)
+        try:
+            body = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON in request body"}, status=400)
+        
+        data = {
+            "username": userob.name,
+            "useremail": userob.email,
+        }
+        
+        if body.get("surveyname_") == "JMLeadershipEvaluationSurvey":
+            timezone_str = request.headers.get('X-Timezone', 'UTC')
+            surveyob = Survey.objects.get(survey_name=body["surveyname_"])
+            user_time_str = CompletedSurvey.objects.get(user=userob, survey=surveyob).completed_at
+            print(user_time_str)
+            local_date = convert_utc_to_local(user_time_str, timezone_str)
+            data["survey_date"] = local_date
+            data["survey_name"] = "JM Leadership Survey"
+        
+        return JsonResponse(data=data, safe=False, status=200)
+class get_user_info_temp(APIView):
+    def post(self, request):
+        body = json.loads(request.body)
+        temporalToken = body["temporalToken"]
+        completed = CompletedSurvey.objects.get(access_token = temporalToken)
+        userob = completed.user
+        surveyob = completed.survey
+        data = {
+            "username": userob.name,
+            "useremail": userob.email,
+        }
+        if surveyob.survey_name == "JMLeadershipEvaluationSurvey":
+            timezone_str = request.headers.get('X-Timezone', 'UTC')
+            user_time_str = CompletedSurvey.objects.get(user=userob, survey=surveyob).completed_at
+            print(user_time_str)
+            local_date = convert_utc_to_local(user_time_str, timezone_str)
+            data["survey_date"] = local_date
+            data["survey_name"] = "JM Leadership Survey"
+        
+        return JsonResponse(data=data, safe=False, status=200)
+def map_response_to_score(response):
+    response_to_score = {
+        'Strongly Agree': 5,
+        'Agree': 4,
+        'Neutral': 3,
+        'Disagree': 2,
+        'Strongly Disagree': 1
+    }
+    return response_to_score.get(response, 0)
+import math
+class get_average_data_temp(APIView):
+    def post(self, request):
+        body = json.loads(request.body)
+        temporalToken = body["temporalToken"]
+        completed = CompletedSurvey.objects.get(access_token = temporalToken)
+        userob = completed.user
+        surveyob = completed.survey
+        questionGroups = body["questionGroups"]
+        data =  {}
+        for key, value in questionGroups.items():
+            for group_substring in value:
+                # question_code 문자열에 group_substring을 포함하는 question 객체들 필터링
+                questions = Question.objects.filter(question_code__contains=group_substring)
+                group_values = []
+                for question in questions:
+                    try:
+                        response_list = res.objects.filter(question=question)
+                        res_value = sum([map_response_to_score(qq.value) for qq in response_list])/len(response_list)
+                        group_values.append(res_value)
+                    except res.DoesNotExist:
+                        continue  # 특정 question에 해당하는 Res 객체가 없을 경우 생략
+                    
+                if group_values:
+                    if key not in data.keys():
+                        data[key] = [sum(group_values) / len(group_values)]
+                    else:
+                        data[key].append(sum(group_values) / len(group_values))
+                else:
+                    if key not in data.keys():
+                        data[key] = [None]
+                    else:
+                        data[key].append(None)
+        return JsonResponse(data=data, safe=False, status=200)
+class get_average_data(APIView):
+    authentication_classes = [TokenAuthentication]
+    
+    def post(self, request):
+        user = request.user
+        userob = User.objects.get(userid=user.userid)
+        body = json.loads(request.body)
+        survey_name = body["surveyname_"]
+        questionGroups = body["questionGroups"]
+        data =  {}
+        # User.objects.get(userid = )
+        timezone_str = request.headers.get('X-Timezone', 'UTC')
+        surveyob = Survey.objects.get(survey_name =survey_name )
+        data = {}
+        for key, value in questionGroups.items():
+            for group_substring in value:
+                # question_code 문자열에 group_substring을 포함하는 question 객체들 필터링
+                questions = Question.objects.filter(question_code__contains=group_substring)
+                group_values = []
+                for question in questions:
+                    try:
+                        response_list = res.objects.filter(question=question)
+                        res_value = sum([map_response_to_score(qq.value) for qq in response_list])/len(response_list)
+                        group_values.append(res_value)
+                    except res.DoesNotExist:
+                        continue  # 특정 question에 해당하는 Res 객체가 없을 경우 생략
+                    
+                if group_values:
+                    if key not in data.keys():
+                        data[key] = [sum(group_values) / len(group_values)]
+                    else:
+                        data[key].append(sum(group_values) / len(group_values))
+                else:
+                    if key not in data.keys():
+                        data[key] = [None]
+                    else:
+                        data[key].append(None)
+
+        return JsonResponse(data=data, safe=False, status=200)
+class check_survey_completion(APIView):
+    authentication_classes = [TokenAuthentication]
+    
+    def post(self, request):
+        user = request.user
+        userob = User.objects.get(userid=user.userid)
+        body = json.loads(request.body)
+        survey_name = body["surveyname_"]
+        
+        try:
+            survey = Survey.objects.get(survey_name=survey_name)
+            completed_survey = CompletedSurvey.objects.filter(user=userob, survey=survey).exists()
+            data = {'completed': completed_survey}
+        except Survey.DoesNotExist:
+            data = {'error': 'Survey does not exist'}
+            return JsonResponse(data=data, safe=False, status=400)
+        
+        return JsonResponse(data=data, safe=False, status=200)
+import pickle
+
 class save_user_answer(APIView):
     authentication_classes = [TokenAuthentication]
     def post(self, request):
@@ -345,6 +507,7 @@ class save_user_answer(APIView):
         # 서버 기준시 UTC
         user = request.user
         userob = User.objects.get(userid = user.userid)
+
         data = json.loads(request.body)
         request_surveyname = data["surveyname_"]
         userAnswer = data["data"]
@@ -354,15 +517,74 @@ class save_user_answer(APIView):
         if (CompletedSurvey.objects.filter(user= userob, survey = survey).exists()):
             for question in questions:
                 qcode = question.question_code
+
                 CompletedSurvey.objects.filter(user = userob, survey = survey).delete()
                 res.objects.get(user = userob, question = question).delete()
         for question in questions:
             qcode = question.question_code
             responses.append(res(user = userob, question = question , value = userAnswer[qcode] ))
         res.objects.bulk_create(responses)
-        CompletedSurvey(user = userob, survey = survey).save()
-        
+        # 새로운 중복되지 않는 access_token 생성 및 저장
+        access_token = str(uuid.uuid4())
+        CompletedSurvey(user=userob, survey=survey, access_token=access_token).save()
+        self.send_email(userob.email, access_token)
         return JsonResponse({"success" : "save success!" }, status = 200)
+    def send_email(self, to_email, access_token):
+        subject = "JMLeadership Survey Completion: Survey Results Notification"
+        from_email = settings.DEFAULT_FROM_EMAIL
+        message = f"메세지 테스트\n\n링크를 통해 설문조사 결과를 확인하세요: http://127.0.0.1:8000/view_report/?token={access_token}"
+        mail = EmailMessage(subject=subject, body=message, to=[to_email], from_email=from_email)
+        mail.send()
+        # except:
+        #     return JsonResponse({"error" : "에러"}, status =404)
+class get_user_answer(APIView):
+    authentication_classes = [TokenAuthentication]
+    def post(self, request):
+        user = request.user
+        userob = User.objects.get(userid = user.userid)
+        data = json.loads(request.body)
+        request_surveyname = data["surveyname_"]
+        survey = Survey.objects.get(survey_name = request_surveyname )
+        questions = Question.objects.filter(survey = survey)
+        answer_dict = {}
+        for q in questions:
+            answer = res.objects.get(question = q, user = userob)
+            value = answer.value
+            answer_dict[q.question_code] = value 
+        return JsonResponse(answer_dict, status = 200)
+        # except:
+        #     return JsonResponse({"error" : "에러"}, status =404)
+class AdminUserListView(APIView):
+    def post(self, request):
+        users = User.objects.all()
+        user_list = []
+        surveyob = Survey.objects.get(survey_name = json.loads(request.body)["surveyname"])
+        for user in users:
+
+            surveys = CompletedSurvey.objects.get(user=user,survey = surveyob)
+            user_list.append({
+                'id': user.id,
+                'name': user.name,
+                'email': user.email,
+                'access_token': surveys.access_token
+            })
+            print(user_list)
+        return JsonResponse(user_list, safe=False)
+class get_user_answer_temp(APIView):
+    def post(self, request):
+        body = json.loads(request.body)
+        temporalToken = body["temporalToken"]
+        completed = CompletedSurvey.objects.get(access_token = temporalToken)
+        userob = completed.user
+        surveyob = completed.survey
+
+        questions = Question.objects.filter(survey = surveyob)
+        answer_dict = {}
+        for q in questions:
+            answer = res.objects.get(question = q, user = userob)
+            value = answer.value
+            answer_dict[q.question_code] = value 
+        return JsonResponse(answer_dict, status = 200)
         # except:
         #     return JsonResponse({"error" : "에러"}, status =404)
 
@@ -375,7 +597,6 @@ class result_data_render(APIView):
         request_group_info = data["group_info_"]
         senddata = {"user" : {}, "other" : {}, "total" : 0 }
         survey_name = data["surveyname_"]
-        # try:
         if survey_name == "PersonalInformationSurvey":
             senddata["user"] = group_calc(request_group_info, userob, survey_name)
         else:
@@ -387,7 +608,6 @@ class result_data_render_admin(APIView):
     authentication_classes = [TokenAuthentication]
     def post(self, request):
         data = json.loads(request.body)
-        print(data)
         request_group_info = data["group_info_"]
         senddata = {"data" : {} }
         survey_name = data["surveyname_"]
@@ -397,7 +617,6 @@ class result_data_render_admin(APIView):
             senddata["subtitles"] = dd
         else:
             senddata["data"] = group_calc_admin(request_group_info, survey_name)
-        print(senddata)
         return JsonResponse({"senddata" : senddata}, status = 200)
 class result_data_render2(APIView):
     authentication_classes = [TokenAuthentication]
@@ -407,7 +626,6 @@ class result_data_render2(APIView):
         senddata = {"data" : {} }
         survey_name = data["surveyname_"]
         senddata["user"] = group_calc_admin(request_group_info, survey_name)
-        print(senddata)
         return JsonResponse({"senddata" : senddata}, status = 200)
 class send_feedback(APIView):
     authentication_classes = [TokenAuthentication]
@@ -445,7 +663,6 @@ def group_calc_admin(request_group_info,survey_name):
         userob = complete.user 
         user_list.append(userob)
     dic = {}
-    print(user_list)
     for group_name, q_codes in request_group_info.items():
         user_mean_list = []
         for user in user_list:
@@ -457,7 +674,6 @@ def group_calc_admin(request_group_info,survey_name):
             mean_ = sum_/len(q_codes)
             user_mean_list.append(mean_)
         dic[group_name] = user_mean_list
-        print(dic[group_name])
         if(survey_name == "UN17Goal"):
             
             dd[group_name]= {"subtitle" : json.loads(question.question_basic.replace('\r', '').replace('\n', '').strip())}
@@ -643,3 +859,20 @@ def export_survey_responses(request):
     response['Content-Disposition'] = f'attachment; filename={survey_name}_responses.xlsx'
 
     return response
+
+
+# def send_email(request):
+#     subject = "JMLeadership Survey Completion: Survey Results Notification"							# 타이틀
+#     to = ["dydtkddhkdwk@gmail.com"]					# 수신할 이메일 주소
+#     from_email = settings.DEFAULT_FROM_EMAIL	
+#     message = "메세지 테스트"					# 본문 내용
+#     mail = EmailMessage(subject=subject, body=message, to=to, from_email=from_email)
+#     mail.send()
+
+def ex(request):
+    survey = Survey.objects.get(survey_name = "JMLeadershipEvaluationSurvey")
+    questions = Question.objects.filter(survey = survey)
+    question_name_list = []
+    for q in questions:
+        question_name_list.append(q.question_code)
+    return HttpResponse(question_name_list)

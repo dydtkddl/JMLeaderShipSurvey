@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect } from 'react';
-import { Outlet, Navigate, useRoutes } from 'react-router-dom';
+import { Outlet, Navigate, useRoutes, useLocation   } from 'react-router-dom';
 
 import DashboardLayout from 'src/layouts/dashboard';
 
@@ -11,77 +11,72 @@ export const AdminSignupPage = lazy(() => import('src/pages/admin-signup'));
 export const Page404 = lazy(() => import('src/pages/page-not-found'));
 export const SurveyPage = lazy(() => import('src/pages/survey-form'));
 export const AdminDataDownload = lazy(() => import('src/pages/admin-data-download'));
-
-// export const ResultPage = lazy(() => import('src/pages/survey-result'));
-// export const AdminResultPage = lazy(() => import('src/pages/admin-survey-result'));
-
-// ----------------------------------------------------------------------
+export const SurveyReport = lazy(() => import('src/pages/survey_report'));
+export const AdminDashboard = lazy(() => import('src/pages/admin-dashboard'));
 
 export default function Router() {
-  useEffect(()=>{
+  const location = useLocation();
 
-    const isLoggedIn = localStorage.getItem("token") || false
-    const isLoggedInadmin = localStorage.getItem("admin") || false
-    console.log(isLoggedIn)
-    console.log(isLoggedInadmin)
-    console.log(window.location.pathname)
-    let allowPath = []
-    let FLAG = 0
-    if (isLoggedInadmin){
-      allowPath +=[ "/adminpage","/adminpage/"]
-      FLAG ="admin"
+  useEffect(() => {
+    // const query = new URLSearchParams(location.search);
+    // const temporalToken = query.get('token');
+    
+    const isLoggedIn = localStorage.getItem("token") || false;
+    const isLoggedInadmin = localStorage.getItem("admin") || false;
+    console.log(isLoggedIn);
+    console.log(isLoggedInadmin);
+    console.log(window.location.pathname);
+    let allowPath = [];
+    let FLAG = 0;
+    if (isLoggedInadmin) {
+      allowPath += ["/adminpage", "/adminpage/","/view_report/"];
+      FLAG = "admin";
     }
-    else if (isLoggedIn){
-      allowPath +=["/", ""]
-      FLAG ="user"
+    else if (isLoggedIn) {
+      allowPath += ["/", "", "/report","/view_report/"];
+      FLAG = "user";
     }
     else {
-      allowPath +=[
-        '/signin','/signup','/adminsignin','/adminsignup',
-        '/signin/','/signup/','/adminsignin/','/adminsignup/'
-  
-      ]
-      FLAG ="unknown"
+      allowPath += [
+        '/signin', '/signup', '/adminsignin', '/adminsignup',
+        '/signin/', '/signup/', '/adminsignin/', '/adminsignup/', "/view_report/"
+      ];
+      FLAG = "unknown";
     }
-  
-    if (FLAG === "admin"){
-      console.log(1)
-      console.log( window.location.pathname === "/")
 
-      if (!allowPath.includes(window.location.pathname ) || window.location.pathname === "/") {
-        console.log(1)
+    if (FLAG === "admin") {
+      console.log(1);
+      console.log(window.location.pathname === "/");
+
+      if (!allowPath.includes(window.location.pathname) || window.location.pathname === "/") {
+        console.log(1);
         window.location.href = '/adminpage';
       }
-    }else if (FLAG === "user"){
-      console.log(2)
-      if (!allowPath.includes(window.location.pathname )){
+    } else if (FLAG === "user") {
+      console.log(2);
+      if (!allowPath.includes(window.location.pathname)) {
         window.location.href = '/';
       }
-    }else if (FLAG === "unknown"){
-      console.log(3)
-      if (!allowPath.includes(window.location.pathname) || window.location.pathname === "/"){
+    } else if (FLAG === "unknown") {
+      console.log(3);
+      if (!allowPath.includes(window.location.pathname) || window.location.pathname === "/") {
+        console.log(window.location.pathname)
         window.location.href = '/signin';
       }
     }
-  }, [])
-  
+  }, [location]);
+
   const routes = useRoutes([
     {
       element: (
-        // 대시보드 레이아웃 여기에 헤더, 네브바 다 있음
         <DashboardLayout>
           <Suspense>
-            <Outlet /> 
-            {/* 중첩 라우팅해주는 Outlet 함수 */}
+            <Outlet />
           </Suspense>
         </DashboardLayout>
       ),
       children: [
-        // 설문조사 라우트
-        { path: "/", element: <SurveyPage surveyname = "JMLeadershipEvaluationSurvey" /> },
-        // 결과 라우트
-        // { path: "Results/JMLeadershipEvaluationSurveyResult", element: <ResultPage surveyname = "JMLeadershipEvaluationSurvey" /> },
-
+        { path: "/", element: <SurveyPage surveyname="JMLeadershipEvaluationSurvey" /> },
       ],
     },
     {
@@ -89,14 +84,21 @@ export default function Router() {
       element: <LoginPage />,
     },
     {
+      path: 'report',
+      element: <SurveyReport />,
+    },
+    {
       path: 'adminsignin',
       element: <AdminLoginPage />,
     },
     {
-      path: 'adminpage',
+      path: 'adminpage2',
       element: <AdminDataDownload />,
     },
-    // { path: "adminpage/JMLeadershipEvaluationSurveyResult", element: <AdminResultPage surveyname = "JMLeadershipEvaluationSurvey" /> },
+    {
+      path: 'adminpage',
+      element: <AdminDashboard />,
+    },
     {
       path: 'signup',
       element: <SignupPage />,
@@ -109,6 +111,11 @@ export default function Router() {
       path: '*',
       element: <Navigate to="/404" replace />,
     },
+    {
+      path: 'view_report',
+      element: <SurveyReport to="/404" replace />,
+    },
+
   ]);
 
   return routes;

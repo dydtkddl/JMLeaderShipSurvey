@@ -19,18 +19,20 @@ export default function SurveySendData({
   questionobjects,
   surveyname,
   title,
+  useremail,
   ...other })
   {
-
-    const [isloading , setIsloading] = useState(true)
+    console.log(useremail)
+    // const [isloading , setIsloading] = useState(true) 이부분 풀어줘야함
+    const [isloading , setIsloading] = useState(false)
 
      useEffect(() => {
     const token = localStorage.getItem("token")
     const fetchData = async () => {
       console.log(userAnswer)
       try {
-        // const response = await fetch("http://127.0.0.1:8000/save_user_answer/", {
-        const response = await fetch("https://jmleadership.pythonanywhere.com/save_user_answer/", {
+        const response = await fetch("http://127.0.0.1:8000/save_user_answer/", {
+        // const response = await fetch("https://jmleadership.pythonanywhere.com/save_user_answer/", {
           method: "POST",
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -55,7 +57,7 @@ export default function SurveySendData({
 
 
     <Card {...other} sx = {{marginTop : 2, paddingTop : 5}}>
-      <Box sx = {{backgroundColor : questionBoxColor,pt : 9,mt : 4,mx : "10%", px : 4,mb : 10,
+      <Box sx = {{backgroundColor : questionBoxColor,pt : 2,mt : 2,mx : "10%", px : 10,mb : 10,
         border : "3px solid #e9ecec", 
         borderRadius : 2,
         display: "flex",
@@ -66,13 +68,16 @@ export default function SurveySendData({
           {isloading ? <CircularProgress/> : <>
           <Typography id="modal-modal-description" textAlign="center"sx={{ mt: 2 }} variant = "h4">
             {surveyname}
-          </Typography>
-          <Typography id="modal-modal-title" textAlign="center" variant="h2" component="h2" >
-                Thank you for Survey  
       <Iconify icon = "el:check" width = {40} sx = {{ml : 3, color : "#01f400 "}}/>
-          </Typography></>
+          </Typography>
+          <Typography variant='p' textAlign="center">
+                Results have been sent to your email at {useremail}
+            Please check!
+          Thank you for the survey.
+            </Typography>
+          </>
           }
-      <Stack direction="row" justifyContent="center" spacing = {4} sx ={{mt : 10}}>
+      <Stack direction="row" justifyContent="center" spacing = {4} sx ={{mt : 1}}>
     <Button  onClick  = {()=>{window.loacation.href = "/"}}sx = {{width : "100%", mb : 5, px : 10}} variant='outlined'>
       <Link href = "/"  sx = {{color : "primary" , py :1, fontWeight : 800, fontSize : "17px"}}>Go Home</Link></Button>
 </Stack>
@@ -88,5 +93,6 @@ SurveySendData.propTypes = {
   requestLanguage : PropTypes.string,
   surveyname : PropTypes.string,
   questionobjects : PropTypes.any.isRequired,
-  currentQuestion : PropTypes.number
+  currentQuestion : PropTypes.number,
+  useremail : PropTypes.string
 };

@@ -55,7 +55,7 @@ class CompletedSurvey(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     survey = models.ForeignKey(Survey, on_delete=models.CASCADE)
     completed_at = models.DateTimeField(auto_now_add=True)
-    
+    access_token = models.CharField(max_length=1000,default = "")
     class Meta:
         db_table = 'completed_survey'
 class FeedBack(models.Model):

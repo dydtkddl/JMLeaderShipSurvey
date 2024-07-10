@@ -21,8 +21,8 @@ import Logo from 'src/components/logo';
 import Iconify from 'src/components/iconify';
 
 const yyReg = /^(19[0-9][0-9]|20\d{2})$/;
-const dReg = /^([1-9]|0[1-9]|1[0-9]|2[0-9]|3[0-1])$/;
-const mReg = /^(1[0-2]|[1-9]|0[1-9])$/; // 월 검사용 정규식
+// const dReg = /^([1-9]|0[1-9]|1[0-9]|2[0-9]|3[0-1])$/;
+// const mReg = /^(1[0-2]|[1-9]|0[1-9])$/; // 월 검사용 정규식
 const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // 이메일 검사용 정규식
 
 // ----------------------------------------------------------------------
@@ -129,8 +129,8 @@ export default function SignupView() {
 
     try {
       console.log(updatedUserData)
-      const response = await fetch("https://jmleadership.pythonanywhere.com/signup_backend/", {
-      // const response = await fetch("http://127.0.0.1:8000/signup_backend/", {
+      // const response = await fetch("https://jmleadership.pythonanywhere.com/signup_backend/", {
+      const response = await fetch("http://127.0.0.1:8000/signup_backend/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

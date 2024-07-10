@@ -57,6 +57,7 @@ export default function AdminLoginView() {
     if (data.message === "success") {
       console.log("로그인성공");
       const { token ,name} = data; // Object destructuring
+      console.log(name)
       // localStorage.setItem('token', token);
       // localStorage.setItem('name', name);
       localStorage.setItem('admin', token);
