@@ -25,7 +25,7 @@ export default function SurveyForm({ surveyname }) {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const userResponse = await axios.post("http://127.0.0.1:8000/api/post/get_user_info/", {}, {
+        const userResponse = await axios.post("https://jmleadership.pythonanywhere.com/api/post/get_user_info/", {}, {
           headers: {
             'Authorization': `Bearer ${token}`,
             "Content-Type": "application/json"
@@ -43,7 +43,7 @@ export default function SurveyForm({ surveyname }) {
   
     const fetchData = async () => {
       try {
-        const response = await fetch("http://127.0.0.1:8000/send_to_survey_form/", {
+        const response = await fetch("https://jmleadership.pythonanywhere.com/send_to_survey_form/", {
           method: "POST",
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -63,7 +63,7 @@ export default function SurveyForm({ surveyname }) {
   
     const checkSurveyCompletion = async () => {
       try {
-        const completionResponse = await axios.post("http://127.0.0.1:8000/api/post/check_survey_completion", {
+        const completionResponse = await axios.post("https://jmleadership.pythonanywhere.com/api/post/check_survey_completion", {
           surveyname_: surveyname,
         }, {
           headers: {

@@ -51,7 +51,7 @@ const SurveyReport = () => {
       let response = {}
       try {
         if (temporalToken == null){
-          const url = 'http://127.0.0.1:8000/api/post/get_user_answer';
+          const url = 'https://jmleadership.pythonanywhere.com/api/post/get_user_answer';
           const data = {
             surveyname_: 'JMLeadershipEvaluationSurvey',
           };
@@ -61,7 +61,7 @@ const SurveyReport = () => {
           }
           response = await axios.post(url, data, {headers});
         }else {
-          const url = 'http://127.0.0.1:8000/api/post/get_user_answer_temp';
+          const url = 'https://jmleadership.pythonanywhere.com/api/post/get_user_answer_temp';
           const data = {
             surveyname_: 'JMLeadershipEvaluationSurvey',
              temporalToken
@@ -83,7 +83,7 @@ const SurveyReport = () => {
       let response = {}
       try {
         if (temporalToken == null){
-          const url = 'http://127.0.0.1:8000/api/post/get_average_data';
+          const url = 'https://jmleadership.pythonanywhere.com/api/post/get_average_data';
           const data = {
             surveyname_: 'JMLeadershipEvaluationSurvey',
             questionGroups : scoreGroup,
@@ -94,7 +94,7 @@ const SurveyReport = () => {
           }
           response = await axios.post(url, data, {headers});
         }else {
-          const url = 'http://127.0.0.1:8000/api/post/get_average_data_temp';
+          const url = 'https://jmleadership.pythonanywhere.com/api/post/get_average_data_temp';
           const data = {
             surveyname_: 'JMLeadershipEvaluationSurvey',
             questionGroups : scoreGroup,
@@ -120,7 +120,7 @@ const SurveyReport = () => {
       let response = {}
       try {
         if (temporalToken == null){
-          const url = 'http://127.0.0.1:8000/api/post/get_user_info';
+          const url = 'https://jmleadership.pythonanywhere.com/api/post/get_user_info';
           const data = {
             surveyname_: 'JMLeadershipEvaluationSurvey',
           };
@@ -130,7 +130,7 @@ const SurveyReport = () => {
           }
           response = await axios.post(url, data, {headers});
         }else {
-          const url = 'http://127.0.0.1:8000/api/post/get_user_info_temp';
+          const url = 'https://jmleadership.pythonanywhere.com/api/post/get_user_info_temp';
           const data = {
             surveyname_: 'JMLeadershipEvaluationSurvey',
              temporalToken

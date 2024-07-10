@@ -19,7 +19,7 @@ const AdminDashboard = () => {
             // 'Authorization': `Bearer ${localStorage.getItem('token')}`,
             'Content-Type': 'application/json',
           };
-          const response = await axios.post('http://127.0.0.1:8000/api/AdminUserList/', data, { headers });
+          const response = await axios.post('https://jmleadership.pythonanywhere.com/api/AdminUserList/', data, { headers });
           setUsers(response.data);
           console.log(response.data)
         } catch (error) {
@@ -30,7 +30,7 @@ const AdminDashboard = () => {
     fetchUsers(); }, [token]);
     const handleDownload = async () => {
       try {
-        const response = await fetch("http://127.0.0.1:8000/export_survey_responses/", {
+        const response = await fetch("https://jmleadership.pythonanywhere.com/export_survey_responses/", {
         // const response = await fetch("https://jmleadership.pythonanywhere.com/export_survey_responses/", {
           method: "GET",
           headers: {
@@ -95,7 +95,7 @@ const AdminDashboard = () => {
           <div className="content">
             {selectedToken ? (
               <iframe
-                src={`http://127.0.0.1:8000/view_report/?token=${selectedToken}`}
+                src={`https://jmleadership.pythonanywhere.com/view_report/?token=${selectedToken}`}
                 title="Survey Result"
                 width="100%"
                 height="100%"

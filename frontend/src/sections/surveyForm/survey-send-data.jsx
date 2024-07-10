@@ -31,7 +31,7 @@ export default function SurveySendData({
     const fetchData = async () => {
       console.log(userAnswer)
       try {
-        const response = await fetch("http://127.0.0.1:8000/save_user_answer/", {
+        const response = await fetch("https://jmleadership.pythonanywhere.com/save_user_answer/", {
         // const response = await fetch("https://jmleadership.pythonanywhere.com/save_user_answer/", {
           method: "POST",
           headers: {

@@ -44,7 +44,7 @@ export default function LoginView() {
     e.preventDefault();
     console.log(signInData)
     try{
-      const response = await fetch("http://127.0.0.1:8000/login/", {
+      const response = await fetch("https://jmleadership.pythonanywhere.com/login/", {
       // const response = await fetch("https://jmleadership.pythonanywhere.com/login/", {
         method : "POST",
         headers :{

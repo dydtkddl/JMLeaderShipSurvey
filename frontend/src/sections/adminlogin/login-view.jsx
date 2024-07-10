@@ -44,7 +44,7 @@ export default function AdminLoginView() {
     console.log(signInData)
     try{
       const response = await fetch("https://jmleadership.pythonanywhere.com/adminlogin/", {
-      // const response = await fetch("http://127.0.0.1:8000/adminlogin/", {
+      // const response = await fetch("https://jmleadership.pythonanywhere.com/adminlogin/", {
         method : "POST",
         headers :{
           "Content-Type" : "application/json"
