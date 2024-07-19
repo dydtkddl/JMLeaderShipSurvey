@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';  // PropTypes import
 import Chart from 'react-apexcharts';
 
 const GroupedBarChart = ({ data, title, explanation, averageData }) => {
+  const isAdmin = localStorage.getItem('admin') !== null;
+
   const options = {
     chart: {
       type: 'bar',
@@ -34,28 +36,26 @@ const GroupedBarChart = ({ data, title, explanation, averageData }) => {
     legend: {
       show: true,
       showForSingleSeries: true,
-      customLegendItems: ['YOU', 'Other Average'],
+      customLegendItems: isAdmin ? ['YOU', 'Other Average'] : ['YOU'],
       markers: {
-        fillColors: ['#00E396', '#775DD0'],
+        fillColors: isAdmin ? ['#00E396', '#775DD0'] : ['#00E396'],
       },
     },
-    yaxis:{
-      max : 5
+    yaxis: {
+      max: 5
     },
     xaxis: {
       categories: data.categories,
     },
   };
 
-  
-  
   const series = [
     {
       name: 'Actual',
       data: data.scores.map((score, index) => ({
         x: data.categories[index],
         y: parseFloat(score.toFixed(1)),
-        goals: [
+        goals: isAdmin ? [
           {
             name: 'Average',
             value: parseFloat(averageData[index].toFixed(1)),
@@ -63,21 +63,22 @@ const GroupedBarChart = ({ data, title, explanation, averageData }) => {
             strokeDashArray: 2,
             strokeColor: '#775DD0',
           },
-        ],
+        ] : [],
       })),
     },
   ];
 
   return (
-<div  >
-  <h2>{title}</h2>
-  <div id ="chart" >
-    <Chart options={options} series={series} type="bar" height={350} />
-  </div>
-  <p className="explanation">{explanation}</p>
-</div>
+    <div>
+      <h2>{title}</h2>
+      <div id="chart">
+        <Chart options={options} series={series} type="bar" height={350} />
+      </div>
+      <p className="explanation">{explanation}</p>
+    </div>
   );
 };
+
 // PropTypes 정의
 GroupedBarChart.propTypes = {
   data: PropTypes.shape({
@@ -88,4 +89,5 @@ GroupedBarChart.propTypes = {
   explanation: PropTypes.string.isRequired,
   averageData: PropTypes.arrayOf(PropTypes.number).isRequired,
 };
+
 export default GroupedBarChart;

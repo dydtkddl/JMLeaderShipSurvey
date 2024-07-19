@@ -3,7 +3,10 @@ import PropTypes from 'prop-types';  // PropTypes import
 import Chart from 'react-apexcharts';
 
 const RadarChart = ({ data, averageData }) => {
-  console.log(averageData)
+  console.log(averageData);
+  
+  const isAdmin = localStorage.getItem('admin') !== null;
+
   const options = {
     chart: {
       type: 'radar',
@@ -14,12 +17,8 @@ const RadarChart = ({ data, averageData }) => {
         size: 190, // Increase the size to make the chart more compact
         polygons: {
           strokeColor: '#efffff',
-          // fill: {
-          //   colors: ['#f8f8f8', '#fff']
-          // }
           fill: {
             opacity: 0.4,
-            // colors : "#ff12ff" // 데이터포인트 영역 채우기
           },
         }
       }
@@ -68,22 +67,24 @@ const RadarChart = ({ data, averageData }) => {
   const series = [
     {
       name: 'Score',
-      data:data.scores.map(score => parseFloat(score.toFixed(1))),
-    },
-    {
-      name: 'Average Score',
-      data: averageData.map((score) => {
-        console.log(1)
-        return parseFloat(score.toFixed(1))}),
+      data: data.scores.map(score => parseFloat(score.toFixed(1))),
     },
   ];
 
+  if (isAdmin) {
+    series.push({
+      name: 'Average Score',
+      data: averageData.map(score => parseFloat(score.toFixed(1))),
+    });
+  }
+
   return (
     <div>
-      <Chart options={options} series={series} type="radar" height={550} width = {700}  />
+      <Chart options={options} series={series} type="radar" height={550} width={700} />
     </div>
   );
 };
+
 RadarChart.propTypes = {
   data: PropTypes.shape({
     categories: PropTypes.arrayOf(PropTypes.string).isRequired,
